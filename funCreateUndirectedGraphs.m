@@ -9,7 +9,7 @@ nType = length(iType);
 % 创建无向图
 h   = cell(1,n);% 节点
 e   = [];% 边
-t   = cell(1,n);% 器件
+t   = cell(1,max(iType)+1);% 器件
 idx = 0;
 for ii = 1:nType
     [h, t, e, idx] = addNode(node1(ii), node2(ii), iType(ii), Value(ii), cellName(ii), h, t, e, idx);
