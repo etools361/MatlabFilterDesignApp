@@ -43,11 +43,14 @@ for ii=1:n
 end
 km = am./bm;
 strNetlist = {};
-strTemp = sprintf('V0 V %d %d %f', n+1, 0, 1);
+strTemp = sprintf('V0 V %d %d %e', n+1, 0, 1);
 strNetlist = [strNetlist; strTemp];
-strTemp = sprintf('RS R %d %d %f', 1, n+1, Rs);
+strTemp = sprintf('RS R %d %d %e', 1, n+1, Rs);
 strNetlist = [strNetlist; strTemp];
 netMax = 0;
+R0 = Rs;
+L0 = R0/(2*pi*fp);
+C0 = 1/(2*pi*fp*R0);
 switch fType
     case 'LPF'
         if TeeEn
@@ -57,21 +60,21 @@ switch fType
                     strDev0 = 'L';
                     mNode   = [ceil(ii/2), ceil(ii/2)+1];
                     if mod(n, 2)
-                        Value   = km(ii);
+                        Value   = km(ii)*L0;
                     else
-                        Value   = km(n+1-ii)*(Rl/Rs);
+                        Value   = km(n+1-ii)*(Rl/Rs)*L0;
                     end
                 else
                     strDev0 = 'C';
                     mNode   = [ceil(ii/2)+1, 0];
                     if mod(n, 2)
-                        Value   = km(ii);
+                        Value   = km(ii)*C0;
                     else
-                        Value   = km(n+1-ii)/(Rl/Rs);
+                        Value   = km(n+1-ii)/(Rl/Rs)*C0;
                     end
                 end
                 strDev  = sprintf('%s%d', strDev0, ii);
-                strTemp = sprintf('%s %s %d %d %f', strDev, strDev0, mNode(1), mNode(2), Value);
+                strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode(1), mNode(2), Value);
                 strNetlist = [strNetlist; strTemp];
             end
         else
@@ -81,21 +84,21 @@ switch fType
                     strDev0 = 'C';
                     mNode   = [ceil(ii/2), 0];
                     if mod(n, 2)
-                        Value   = km(n+1-ii)/(Rl/Rs);
+                        Value   = km(n+1-ii)/(Rl/Rs)*C0;
                     else
-                        Value   = km(n+1-ii)*(Rl/Rs);
+                        Value   = km(n+1-ii)*(Rl/Rs)*C0;
                     end
                 else
                     strDev0 = 'L';
                     mNode   = [ceil(ii/2), ceil(ii/2)+1];
                     if mod(n, 2)
-                        Value   = km(n+1-ii)*(Rl/Rs);
+                        Value   = km(n+1-ii)*(Rl/Rs)*L0;
                     else
-                        Value   = km(n+1-ii)/(Rl/Rs);
+                        Value   = km(n+1-ii)/(Rl/Rs)*L0;
                     end
                 end
                 strDev  = sprintf('%s%d', strDev0, ii);
-                strTemp = sprintf('%s %s %d %d %f', strDev, strDev0, mNode(1), mNode(2), Value);
+                strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode(1), mNode(2), Value);
                 strNetlist = [strNetlist; strTemp];
             end
         end
@@ -104,6 +107,6 @@ switch fType
     case 'BRF'
 end
 netMax  = max(mNode);
-strTemp = sprintf('RL R %d %d %f', netMax, 0, Rl);
+strTemp = sprintf('RL R %d %d %e', netMax, 0, Rl);
 strNetlist = [strNetlist; strTemp];
 end
