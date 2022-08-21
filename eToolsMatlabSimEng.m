@@ -4,7 +4,18 @@
 % 通用无源网络仿真引擎
 %--------------------------------------------------------------------------
 % netlist, PI型，两端接载
-strNetlist = {
+tic;
+fType = 'LPF';
+n     = 11;
+Rs    = 1;
+Rl    = 1;
+fp    = 1;
+fs    = 2;
+Ap    = -3;
+As    = Ap-15;
+TeeEn = 1;% TeeEn=0:PI, TeeEn=1:Tee
+[strNetlist] = funSynthesisButterworthFilter(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, As);
+strNetlist1 = {
 'V0 V 1 0 1';
 'RS R 1 2 1';
 'R1 R 2 3 0';
@@ -45,7 +56,7 @@ strNetlist1 = {
 'R2 R 4 5 0.1';
 'RL R 5 0 1'
 };
-strNetlist = {
+strNetlist1 = {
 'V0 V 1 0 1';
 'RS R 1 2 1';
 'C2 C 2 0 0.314631';
@@ -147,6 +158,6 @@ axTran = axes(h4);
 oldXTick = findall(axTran,'Tag', 'pseudoXTickLabels'); 
 delete(oldXTick)
 funTranSim(axTran, f1, Tmax, Nmax, MX, MM, MN, MV, retNode, cellName, Value)
-
+toc;
 
 
