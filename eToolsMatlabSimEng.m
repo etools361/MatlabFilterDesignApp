@@ -5,7 +5,8 @@
 %--------------------------------------------------------------------------
 % netlist, PI型，两端接载
 tic;
-fType = 'LPF';
+fType  = 'Butterworth';
+fShape = 'HPF';
 n     = 11;
 Rs    = 1;
 Rl    = 1;
@@ -13,98 +14,11 @@ fp    = 1;
 fs    = 2;
 Ap    = -3;
 As    = Ap-15;
+bw    = [];
 TeeEn = 1;% TeeEn=0:PI, TeeEn=1:Tee
-[strNetlist] = funSynthesisButterworthFilter(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, As);
-strNetlist1 = {
-'V0 V 1 0 1';
-'RS R 1 2 1';
-'R1 R 2 3 0';
-'C1 C 3 0 1';
-'L2 L 3 4 2';
-'C3 C 4 0 1';
-'R2 R 4 5 0';
-'RL R 5 0 1'
-};
-% T型，一端接载
-strNetlist1 = {
-'V0 V 1 GND 1';
-'RS R 1 7 1';
-'CS C 7 6 1';
-'RS2 R 1 8 1';
-'LS L 8 6 1';
-'RP R 5 6 10';
-'C3 C 3 x 1.333';
-'C4 C 3 y 0.2';
-'R5 R x y 1.1';
-'R6 R y z 1.2';
-'R7 R z GND 1.4';
-'L2 L 6 3 1.5';
-'L4 L 3 5 0.5';
-'L5 L z 7 0.5';
-'RL R 5 GND 1'
-};
-strNetlist1 = {
-'V0 V 1 0 1';
-'RS R 1 2 1';
-'R1 R 2 3 0';
-'C1 C 3 8 1';
-'R3 R 8 9 1';
-'L5 L 9 0 1';
-'C4 C 8 0 0.2';
-'L2 L 3 4 2';
-'C3 C 4 0 1';
-'R2 R 4 5 0.1';
-'RL R 5 0 1'
-};
-strNetlist1 = {
-'V0 V 1 0 1';
-'RS R 1 2 1';
-'C2 C 2 0 0.314631';
-'C3 C 2 3 0.02996';
-'L3 L 2 3 0.155487';
-'C4 C 3 0 0.396551';
-'C5 C 4 3 0.082683';
-'L5 L 4 3 0.126308';
-'C6 C 4 0 0.314631';
-'RL R 4 0 1'
-};
-% Butterworth BPF
-strNetlist1 = {
-'V0 V 1 0 1';
-'RS R 1 2 1';
-'C2 C 2 0 0.491582';
-'L2 L 2 0 0.052049';
-'C3 C 2 3 0.019881';
-'L3 L 3 4 1.287';
-'C4 C 4 0 1.591';
-'L4 L 4 0 0.016084';
-'C5 C 4 5 0.019881';
-'L5 L 5 6 1.287';
-'C6 C 6 0 0.491582';
-'L6 L 6 0 0.052049';
-'RL R 6 0 1'
-};
-strNetlist1 = {
-'V0 V 1 0 1';
-'RS R 1 2 1';
-'C2 C 2 3 0.1';
-'R2 R 2 3 0.2';
-'C3 C 4 3 1';
-'R3 R 4 3 0.2';
-'C4 C 4 5 10';
-'R4 R 4 5 0.2';
-'C5 C 6 5 100';
-'R5 R 6 5 0.2';
-'RL R 6 0 1'
-};
-strNetlist1 = {
-'V0 V 1 0 1';
-'RS R 1 2 1';
-'R1 R 3 2 1';
-'R2 R 2 0 1';
-'R3 R 1 3 10';
-'RL R 3 0 1'
-};
+% 滤波器综合
+[strNetlist] = funSynthesisFilter(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, As, bw, fShape);
+% 滤波器仿真
 % split netlist
 [iType, Value, cellNode1, CellNode2, cellName] = funSimNetlist2Array(strNetlist);
 % netlist standard
