@@ -37,18 +37,7 @@ axPlot = gca;
 f0     = 1e-3/2/pi;
 w0     = 2*pi*f0;
 [img] = funGenSchematic2(axPlot, iType, Value, cellNode1, CellNode2, cellName, w0);
-% tic;
-% ylimValue = ylim(axPlot);
-% ylim(axPlot, [-ceil(-ylimValue(1)), ceil(ylimValue(2))]);
-% set(axPlot,'ytick',[]);
-% set(axPlot,'xtick',[]);
-% set(axPlot,'Box','off');
 set(gcf,'color',[1,1,1]);
-% set(gca,'looseInset',[0 0 0 0]);
-% axis off;
-% set(gca,'LooseInset',get(gca,'TightInset'));
-% set(gca,'PlotBoxAspectRatio', [8 2 1])
-% figure(2);
 %% -----------------AC-------------------------
 f0 = 1e-2;
 f1 = 1e1;
