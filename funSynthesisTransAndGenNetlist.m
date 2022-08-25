@@ -9,9 +9,7 @@ if isempty(km)
     return;
 end
 Rvs = 0;
-if Rs <= Rl
-    Rvs = ~Rvs;
-end
+Rvs = xor(Rvs, Rs <= Rl);
 % 滤波器类型转换和网表生成
 strNetlist = {};
 strTemp    = sprintf('V0 V %d %d %e', n*2, 0, 1);
@@ -19,12 +17,8 @@ strNetlist = [strNetlist; strTemp];
 strTemp    = sprintf('RS R %d %d %e', 1, n*2, Rs);
 strNetlist = [strNetlist; strTemp];
 mNode      = 1;
-if ~TeeEn
-    Rvs = ~Rvs;
-end
-if mod(n, 2)
-    Rvs = ~Rvs;
-end
+Rvs = xor(Rvs, ~TeeEn);
+Rvs = xor(Rvs, mod(n, 2));
 if Rvs
     R0 = Rl;
 else
