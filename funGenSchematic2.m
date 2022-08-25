@@ -23,6 +23,7 @@ function [img] = funGenSchematic2(axPlot, iType, Value, cellNode1, CellNode2, ce
 % 找出带节点的桥
 [iBn, cellLoop, cellDevice0, iLoop, Looping, e] = funFindBridgeWiNode(h, e, Bn, iBn);
 % 剩下未被标记的即为无节点桥。无桥节点需要预占位Cross Point，不然构建的原理图不对称
+[mB, cellWoBridge] = funFindBridgeWoNode(h, e, PathTemp, DeviceEdgeTemp, cellBranch2GND, cellLoop, cellDevice0);
 
 % 策略2
 % 寻找从指定两个节点的最长路径，使用图的深度搜索，研究了一下，貌似这个问题是NP-Hard问题！参考哈密顿路径。
@@ -53,10 +54,42 @@ y = 0;
 PointLength  = 0.8;
 DeviceLength = 1;
 r = 0;
+MarkedEndNode = 0;
 % 绘制主链路
 for ii=1:m
     cNode = PathTemp(ii);
     [AxisOfSchNode, x, y] = funDrawNodeAndLine(axPlot, h, x, y, PointLength, AxisOfSchNode, r, m, ii, cNode);
+    % 占位
+    if MarkedEndNode % 上一个器件的最后一个点是否占位，没有，则需要占第一个点
+        AxisOfSchNode{cNode}{1} = AxisOfSchNode{cNode}{1} + 1;
+        MarkedEndNode = 0;
+    end
+    % draw wo node bridge
+    if cellWoBridge{cNode}{1}
+        for jj=1:cellWoBridge{cNode}{1}
+            eDevice = cellWoBridge{cNode}{jj+1};
+            iTypeD = eDevice.iType;
+            ValueD = eDevice.Value;
+            funGenLine(axPlot, [y, y+jj], [x, x], ~r);
+            funGenLine(axPlot, [y, y+jj], [x+1, x+1], ~r);
+            funDrawDevice(axPlot, iTypeD, ValueD, x, y+jj, r);
+            % 标记
+            eTemp = eDevice.edge;
+            e(eTemp).isMarked = 1;
+            e(bitxor(eTemp-1,1)+1).isMarked = 1;
+            % 需要在画的最后一个点上占位
+            cTemp = AxisOfSchNode{cNode};
+            Temp1 = cTemp{1};
+            Temp2 = length(cTemp);
+            if Temp2 > 2
+                TempNew = [cTemp(1:Temp1),cTemp(Temp2), cTemp(Temp1+1:Temp2-1)];
+                AxisOfSchNode{cNode} = TempNew;
+            end
+            AxisOfSchNode{cNode}{1} = AxisOfSchNode{cNode}{1} + 1;
+            MarkedEndNode = eDevice.node2;% 记录最后一个点
+        end
+    end
+    % draw main device
     if ii ~= m
         iTypeD = e(DeviceEdgeTemp(ii)).iType;
         ValueD = e(DeviceEdgeTemp(ii)).Value;
