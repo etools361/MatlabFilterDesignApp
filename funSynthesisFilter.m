@@ -7,7 +7,7 @@ function [strNetlist] = funSynthesisFilter(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, 
 switch fType % 滤波器类型
     case 'Butterworth'
         [km] = funSynthesisButterworthFilter(n, Rs, Rl, fp, fs, Ap, As);
-    case 'ChebyshevI'
+    case 'Chebyshev I'
         km = [];
         warning('TBD');
     otherwise
