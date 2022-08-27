@@ -9,20 +9,41 @@ if isempty(km)
     return;
 end
 Rvs = 0;
-Rvs = xor(Rvs, Rs <= Rl);
 % 滤波器类型转换和网表生成
 strNetlist = {};
-strTemp    = sprintf('V0 V %d %d %e', n*2, 0, 1);
-strNetlist = [strNetlist; strTemp];
-strTemp    = sprintf('RS R %d %d %e', 1, n*2, Rs);
-strNetlist = [strNetlist; strTemp];
+if Rs == inf
+    strTemp    = sprintf('I0 I %d %d %e', n*2+1, 0, 1/Rl);
+    strNetlist = [strNetlist; strTemp];
+    strTemp    = sprintf('RS R %d %d %e', 1, n*2+1, 0);
+    strNetlist = [strNetlist; strTemp];
+else
+    strTemp    = sprintf('V0 V %d %d %e', n*2+1, 0, 1);
+    strNetlist = [strNetlist; strTemp];
+    strTemp    = sprintf('RS R %d %d %e', 1, n*2+1, Rs);
+    strNetlist = [strNetlist; strTemp];
+end
 mNode      = 1;
-Rvs = xor(Rvs, ~TeeEn);
+OneEndPort = 0;
+if Rl==0 || Rl==inf
+    Rvs = 1;
+    OneEndPort = 1;
+elseif Rs==0 || Rs==inf
+    Rvs = 0;
+    OneEndPort = 1;
+else
+    Rvs = xor(Rvs, Rs <= Rl);
+    Rvs = xor(Rvs, ~TeeEn);
+end
 Rvs = xor(Rvs, mod(n, 2));
 if Rvs
     R0 = Rl;
 else
     R0 = Rs;
+end
+if Rl==0 || Rl==inf
+    R0 = Rs;
+elseif Rs==0 || Rs==inf
+    R0 = Rl;
 end
 L0 = R0/(2*pi*fp);
 C0 = 1/(2*pi*fp*R0);
@@ -33,8 +54,16 @@ for ii=1:n
         idx = ii;
     end
     odd = 1;
-    if (~mod(n, 2) && (Rs<Rl || (Rs==Rl && TeeEn))) || (mod(n, 2) && TeeEn)
-        odd = 0;
+    if OneEndPort
+        if Rl==0 || Rs==0 % T
+            odd = 0;
+        elseif Rl==inf || Rs==inf % PI
+            odd = 1;
+        end
+    else
+        if (~mod(n, 2) && (Rs<Rl || (Rs==Rl && TeeEn))) || (mod(n, 2) && TeeEn)
+            odd = 0;
+        end
     end
     if mod(ii+odd, 2)
         mNode   = [ceil(ii/2), ceil(ii/2)+1];
