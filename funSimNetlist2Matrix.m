@@ -61,7 +61,11 @@ end
 % |       | * -  MX + |        | * MX = MV
 % | 0  ML |   dt      | MD' MI |
 M = [MC, zeros(maxNode, nVI);zeros(maxNode, nVI)', ML];
-N = [MG, MD; -MD', MI];
+MDT = -MD';
+% 补丁，电流源矩阵修正
+[a, ~] = find(MI==1);
+MDT(a,:) = 0;
+N = [MG, MD; MDT, MI];
 end
 
 function [MI] = funNode2Mat(node1, node2, MI, Value)
