@@ -326,13 +326,13 @@ function [x1, y1] = funDrawDevice(axPlot, iType, Value, x2, y2, r)
 switch iType
     case 0 % V
         [x1, y1] = funGenV(axPlot, x2, y2, r);
-        funGenText(axPlot, x2+0.8, y2-0.55, r, Value, 'V');
-        text(axPlot, x2+1, y2+0.18, 'V_i', 'FontSize',12, 'FontWeight', 'bold');
+        funGenText(axPlot, x2+1.1, y2-0, r, Value, 'V');
+        text(axPlot, x2+0.8, y2+0.18, 'V_i', 'FontSize',12, 'FontWeight', 'bold');
         y0 = y1;
     case 1 % I
         [x1, y1] = funGenI(axPlot, x2, y2, r);
-        funGenText(axPlot, x1, y1, r, Value, 'A');
-        text(axPlot, x1-0.15, y1+0.12, 'I_i', 'FontSize',12, 'FontWeight', 'bold');
+        funGenText(axPlot, x2+0.8, y2-0.55, r, Value, 'A');
+        text(axPlot, x2+1, y2+0.18, 'I_i', 'FontSize',12, 'FontWeight', 'bold');
         y0 = y1;
     case 2 % R
         if Value == 0
@@ -356,10 +356,10 @@ function [x, y]=funGenText(axPlot, x, y, r, Value, strUnit)
 hold(axPlot, 'on');
 if r == 0
 %     text(x-0.1, y+0.15, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',12, 'FontWeight', 'bold');
-    text(axPlot, x-0.7, y+0.35, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',12, 'FontWeight', 'bold');
+    text(axPlot, x-0.7, y+0.35, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',9, 'FontWeight', 'bold');
 else
 %     text(x+0.1, y-0.9, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',12, 'FontWeight', 'bold');
-    text(axPlot, x+0.28, y-0.45, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',12, 'FontWeight', 'bold');
+    text(axPlot, x+0.1, y-0.95, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',9, 'FontWeight', 'bold');
 end
 hold(axPlot, 'off');
 
@@ -371,15 +371,15 @@ rh = 0.25;
 rv = ll-2*rb;
 hold(axPlot, 'on');
 if r == 0
-    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+rb, x+rb, x+rb+rv, x+rb+rv, x+rb, x+rb], [y+rh/2, y-rh/2, y-rh/2, y+rh/2, y+rh/2, y-rh/2], '-k', 'LineWidth', 4);
+    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+rb, x+rb, x+rb+rv, x+rb+rv, x+rb, x+rb], [y+rh/2, y-rh/2, y-rh/2, y+rh/2, y+rh/2, y-rh/2], '-k', 'LineWidth', 2);
     x0 = x+ll;
     y0 = y;
 else
-    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 2);
-    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 2);
-    plot(axPlot, [y+rh/2, y-rh/2, y-rh/2, y+rh/2, y+rh/2, y-rh/2], [x+rb, x+rb, x+rb+rv, x+rb+rv, x+rb, x+rb], '-k', 'LineWidth', 4);
+    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 1);
+    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 1);
+    plot(axPlot, [y+rh/2, y-rh/2, y-rh/2, y+rh/2, y+rh/2, y-rh/2], [x+rb, x+rb, x+rb+rv, x+rb+rv, x+rb, x+rb], '-k', 'LineWidth', 2);
     x0 = y;
     y0 = x+ll;
 end
@@ -392,14 +392,14 @@ rh = 0.25;
 rv = ll-2*rb;
 hold(axPlot, 'on');
 if r == 0
-    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 2);
+    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 1);
 %     plot([x+rb, x+rb, x+rb+rv, x+rb+rv, x+rb, x+rb], [y+rh/2, y-rh/2, y-rh/2, y+rh/2, y+rh/2, y-rh/2], '-k', 'LineWidth', 4);
     x0 = x+ll;
     y0 = y;
 else
-    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 2);
-    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 2);
+    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 1);
+    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 1);
 %     plot([y+rh/2, y-rh/2, y-rh/2, y+rh/2, y+rh/2, y-rh/2], [x+rb, x+rb, x+rb+rv, x+rb+rv, x+rb, x+rb], '-k', 'LineWidth', 4);
     x0 = y;
     y0 = x+ll;
@@ -412,17 +412,17 @@ ll = 1.0;
 rh = 0.5;
 hold(axPlot, 'on');
 if r == 0
-    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+rb, x+rb], [y+rh/2, y-rh/2], '-k', 'LineWidth', 4);
-    plot(axPlot, [x+ll-rb, x+ll-rb], [y+rh/2, y-rh/2], '-k', 'LineWidth', 4);
+    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+rb, x+rb], [y+rh/2, y-rh/2], '-k', 'LineWidth', 2);
+    plot(axPlot, [x+ll-rb, x+ll-rb], [y+rh/2, y-rh/2], '-k', 'LineWidth', 2);
     x0 = x+ll;
     y0 = y;
 else
-    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 2);
-    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 2);
-    plot(axPlot, [y+rh/2, y-rh/2], [x+rb, x+rb], '-k', 'LineWidth', 4);
-    plot(axPlot, [y+rh/2, y-rh/2], [x+ll-rb, x+ll-rb], '-k', 'LineWidth', 4);
+    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 1);
+    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 1);
+    plot(axPlot, [y+rh/2, y-rh/2], [x+rb, x+rb], '-k', 'LineWidth', 2);
+    plot(axPlot, [y+rh/2, y-rh/2], [x+ll-rb, x+ll-rb], '-k', 'LineWidth', 2);
     x0 = y;
     y0 = x+ll;
 end
@@ -435,15 +435,15 @@ r0 = ll-rb*2;
 lx = linspace(x+rb, x+ll-rb, 49);
 hold(axPlot, 'on');
 if r == 0
-    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, lx, y+0.2.*abs(sin((lx-rb-x)./r0.*4.*pi)).^0.5-0.005, '-k', 'LineWidth', 4);
+    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, lx, y+0.2.*abs(sin((lx-rb-x)./r0.*4.*pi)).^0.5-0.005, '-k', 'LineWidth', 2);
     x0 = x+ll;
     y0 = y;
 else
-    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 2);
-    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 2);
-    plot(axPlot, y+0.2.*abs(sin((lx-rb-x)./r0.*4.*pi)).^0.5-0.005, lx, '-k', 'LineWidth', 4);
+    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 1);
+    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 1);
+    plot(axPlot, y+0.2.*abs(sin((lx-rb-x)./r0.*4.*pi)).^0.5-0.005, lx, '-k', 'LineWidth', 2);
     x0 = y;
     y0 = x+ll;
 end
@@ -457,17 +457,17 @@ dx1 = 0.25;
 dx2 = 0.1;
 hold(axPlot, 'on');
 if r == 0
-    plot(axPlot, [y, y-rb], [x, x], '-k', 'LineWidth', 2);
-    plot(axPlot, [y-rb, y-rb], [x-dx0/2, x+dx0/2], '-k', 'LineWidth', 4);
-    plot(axPlot, [y-rb-dy, y-rb-dy], [x-dx1/2, x+dx1/2], '-k', 'LineWidth', 4);
-    plot(axPlot, [y-rb-dy*2, y-rb-dy*2], [x-dx2/2, x+dx2/2], '-k', 'LineWidth', 4);
+    plot(axPlot, [y, y-rb], [x, x], '-k', 'LineWidth', 1);
+    plot(axPlot, [y-rb, y-rb], [x-dx0/2, x+dx0/2], '-k', 'LineWidth', 2);
+    plot(axPlot, [y-rb-dy, y-rb-dy], [x-dx1/2, x+dx1/2], '-k', 'LineWidth', 2);
+    plot(axPlot, [y-rb-dy*2, y-rb-dy*2], [x-dx2/2, x+dx2/2], '-k', 'LineWidth', 2);
     x0 = y;
     y0 = x;
 else
-    plot(axPlot, [x, x], [y, y-rb], '-k', 'LineWidth', 2);
-    plot(axPlot, [x-dx0/2, x+dx0/2], [y-rb, y-rb], '-k', 'LineWidth', 4);
-    plot(axPlot, [x-dx1/2, x+dx1/2], [y-rb-dy, y-rb-dy], '-k', 'LineWidth', 4);
-    plot(axPlot, [x-dx2/2, x+dx2/2], [y-rb-dy*2, y-rb-dy*2], '-k', 'LineWidth', 4);
+    plot(axPlot, [x, x], [y, y-rb], '-k', 'LineWidth', 1);
+    plot(axPlot, [x-dx0/2, x+dx0/2], [y-rb, y-rb], '-k', 'LineWidth', 2);
+    plot(axPlot, [x-dx1/2, x+dx1/2], [y-rb-dy, y-rb-dy], '-k', 'LineWidth', 2);
+    plot(axPlot, [x-dx2/2, x+dx2/2], [y-rb-dy*2, y-rb-dy*2], '-k', 'LineWidth', 2);
     x0 = x;
     y0 = y;
 end
@@ -482,21 +482,21 @@ d2 = 0.15;
 lx = linspace(0, 2*pi, 41);
 hold(axPlot, 'on');
 if r == 0
-    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, d0/2.*cos(lx)+x+ll/2, d0/2.*sin(lx)+y, '-k', 'LineWidth', 4);
-    plot(axPlot, [x+ll-rb-d1+d2, x+ll-rb-d1], [y, y], '-k', 'LineWidth', 4);
-    plot(axPlot, [x+ll-rb-d1+d2/2, x+ll-rb-d1+d2/2], [y-d2/2, y+d2/2], '-k', 'LineWidth', 4);
-    plot(axPlot, [x+rb+d1-d2/2, x+rb+d1-d2/2], [y-d2/2, y+d2/2], '-k', 'LineWidth', 4);
+    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, d0/2.*cos(lx)+x+ll/2, d0/2.*sin(lx)+y, '-k', 'LineWidth', 2);
+    plot(axPlot, [x+ll-rb-d1+d2, x+ll-rb-d1], [y, y], '-k', 'LineWidth', 2);
+    plot(axPlot, [x+ll-rb-d1+d2/2, x+ll-rb-d1+d2/2], [y-d2/2, y+d2/2], '-k', 'LineWidth', 2);
+    plot(axPlot, [x+rb+d1-d2/2, x+rb+d1-d2/2], [y-d2/2, y+d2/2], '-k', 'LineWidth', 2);
     x0 = x+ll;
     y0 = y;
 else
-    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 2);
-    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 2);
-    plot(axPlot, d0/2.*sin(lx)+y, d0/2.*cos(lx)+x+ll/2, '-k', 'LineWidth', 4);
-    plot(axPlot, [y, y], [x+ll-rb-d1+d2, x+ll-rb-d1], '-k', 'LineWidth', 4);
-    plot(axPlot, [y-d2/2, y+d2/2], [x+ll-rb-d1+d2/2, x+ll-rb-d1+d2/2], '-k', 'LineWidth', 4);
-    plot(axPlot, [y-d2/2, y+d2/2], [x+rb+d1-d2/2, x+rb+d1-d2/2], '-k', 'LineWidth', 4);
+    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 1);
+    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 1);
+    plot(axPlot, d0/2.*sin(lx)+y, d0/2.*cos(lx)+x+ll/2, '-k', 'LineWidth', 2);
+    plot(axPlot, [y, y], [x+ll-rb-d1+d2, x+ll-rb-d1], '-k', 'LineWidth', 2);
+    plot(axPlot, [y-d2/2, y+d2/2], [x+ll-rb-d1+d2/2, x+ll-rb-d1+d2/2], '-k', 'LineWidth', 2);
+    plot(axPlot, [y-d2/2, y+d2/2], [x+rb+d1-d2/2, x+rb+d1-d2/2], '-k', 'LineWidth', 2);
     x0 = x;
     y0 = y+ll;
 end
@@ -511,19 +511,19 @@ d2 = 0.15;
 lx = linspace(0, 2*pi, 41);
 hold(axPlot, 'on');
 if r == 0
-    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 2);
-    plot(axPlot, d0/2.*cos(lx)+x+ll/2, d0/2.*sin(lx)+y, '-k', 'LineWidth', 4);
-    plot(axPlot, [x+ll-rb-d1+d2, x+rb+d1-d2], [y, y], '-k', 'LineWidth', 4);
-    plot(axPlot, [x+ll-rb-d1, x+ll-rb-d1+d2, x+ll-rb-d1], [y-d2/2, y, y+d2/2], '-k', 'LineWidth', 4);
+    plot(axPlot, [x, x+rb], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, [x+ll-rb, x+ll], [y, y], '-k', 'LineWidth', 1);
+    plot(axPlot, d0/2.*cos(lx)+x+ll/2, d0/2.*sin(lx)+y, '-k', 'LineWidth', 2);
+    plot(axPlot, [x+ll-rb-d1+d2, x+rb+d1-d2], [y, y], '-k', 'LineWidth', 2);
+    plot(axPlot, [x+ll-rb-d1, x+ll-rb-d1+d2, x+ll-rb-d1], [y-d2/2, y, y+d2/2], '-k', 'LineWidth', 2);
     x0 = x+ll;
     y0 = y;
 else
-    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 2);
-    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 2);
-    plot(axPlot, d0/2.*sin(lx)+y, d0/2.*cos(lx)+x+ll/2, '-k', 'LineWidth', 4);
-    plot(axPlot, [y, y], [x+ll-rb-d1+d2, x+rb+d1-d2], '-k', 'LineWidth', 4);
-    plot(axPlot, [y-d2/2, y, y+d2/2], [x+ll-rb-d1, x+ll-rb-d1+d2, x+ll-rb-d1], '-k', 'LineWidth', 4);
+    plot(axPlot, [y, y], [x, x+rb], '-k', 'LineWidth', 1);
+    plot(axPlot, [y, y], [x+ll-rb, x+ll], '-k', 'LineWidth', 1);
+    plot(axPlot, d0/2.*sin(lx)+y, d0/2.*cos(lx)+x+ll/2, '-k', 'LineWidth', 2);
+    plot(axPlot, [y, y], [x+ll-rb-d1+d2, x+rb+d1-d2], '-k', 'LineWidth', 2);
+    plot(axPlot, [y-d2/2, y, y+d2/2], [x+ll-rb-d1, x+ll-rb-d1+d2, x+ll-rb-d1], '-k', 'LineWidth', 2);
     x0 = x;
     y0 = y+ll;
 end
