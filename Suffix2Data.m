@@ -10,6 +10,10 @@ function DataOut=Suffix2Data(strDataIn)
        
     N  = size(strUnit, 1);
      strDataIn = num2str(strDataIn);
+     if strcmpi(strDataIn, 'inf')
+         DataOut = inf;
+         return;
+     end
 %      DataOut = str2double(strDataIn);
     flag = 0;
 %     if isnan(DataOut)
