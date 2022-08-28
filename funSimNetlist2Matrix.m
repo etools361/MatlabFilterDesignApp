@@ -37,7 +37,8 @@ for ii = 1:nNetlist
         MX{iMD + maxNode} = sprintf('i%s', cellName{ii});
     elseif iTypec == 1 % I
         iMD = iMD + 1;
-        [MI, MD] = funNode2MatR(node1(ii), node2(ii), MI, MD, iMD, Value(ii));
+        [MI, MD] = funNode2MatR(node1(ii), node2(ii), MI, MD, iMD, 1);
+%         [MI, MD] = funNode2MatR(node1(ii), node2(ii), MI, MD, iMD, Value(ii));
         MV(iMD + maxNode) = Value(ii);
         MX{iMD + maxNode} = sprintf('i%s', cellName{ii});
     elseif iTypec == 2 % R
