@@ -7,16 +7,16 @@
 tic;
 fType  = 'Butterworth';
 fShape = 'LPF';
-n     = 6;
+n     = 3;
 Rs    = 1;
-Rl    = 1;
-fp    = 1;
+Rl    = 2;
+fp    = 0.159;
 fs    = 2;
 Ap    = -3;
 As    = Ap-15;
 bw    = [];
 TeeEn = 1;% TeeEn=0:PI, TeeEn=1:Tee
-SimSW = 8;
+SimSW = 3;
 % 滤波器综合
 [strNetlist] = funSynthesisFilter(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, As, bw, fShape);
 % 滤波器仿真
