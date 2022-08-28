@@ -17,7 +17,11 @@ if Rs == inf
     strTemp    = sprintf('RS R %d %d %e', 1, n*2+1, 0);
     strNetlist = [strNetlist; strTemp];
 else
-    strTemp    = sprintf('V0 V %d %d %e', n*2+1, 0, 1);
+    if Rl == 0
+        strTemp    = sprintf('V0 V %d %d %e', n*2+1, 0, Rs);
+    else
+        strTemp    = sprintf('V0 V %d %d %e', n*2+1, 0, 1);
+    end
     strNetlist = [strNetlist; strTemp];
     strTemp    = sprintf('RS R %d %d %e', 1, n*2+1, Rs);
     strNetlist = [strNetlist; strTemp];
@@ -79,9 +83,7 @@ for ii=1:n
         mNode1  = mNode;
         mNode2  = mNode;
     end
-    if ~mod(ii, 2)
-        odd = ~odd;% 用于产生交替信号，交替选择电容或电感
-    end
+    odd = xor(odd, ~mod(ii, 2));
     switch fShape
         case 'LPF'
             if ~odd
