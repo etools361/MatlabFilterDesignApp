@@ -43,9 +43,6 @@ win10, Matlab2021a
 
 程序的Matalb源码已经上传GitHub中$^{[6]}$(https://github.com/etools361/MatlabFilterDesignApp)，有兴趣的同学可以下载试用体验，当然也欢迎技术交流。
 
-5阶巴特沃斯带通滤波器综合和仿真
-![5阶巴特沃斯带通滤波器综合和仿真](matlabFilterDesignApp.png)
-
 
 ### 参考(ref)
 [1] : [模拟无源滤波器设计（一）](https://mp.weixin.qq.com/s/wNRHyBHpimjU90bymHp7JA) \
