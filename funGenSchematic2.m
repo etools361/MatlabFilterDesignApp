@@ -15,7 +15,7 @@ function [img] = funGenSchematic2(axPlot, iType, Value, cellNode1, CellNode2, ce
 % 生成源和负载
 [sb0, db0, eSource, eLoad] = funGenSourceAndLoadInd(e, t, cellName);
 % 添加w0处的权重
-[e] = funAddWeight(e, iType, Value, w0, nType);
+[e] = funAddWeight(e, iType, abs(Value), w0, nType);% 避免负值影响结果
 % 找出主链路,主链路器件为DeviceMain, 节点为PathTemp
 [DistanceTemp, PathTemp, DeviceMain, DeviceEdgeTemp, e] = funFindMainPath(h, e, sb0, db0);
 % 找出对地路径
@@ -356,11 +356,12 @@ function [x, y]=funGenText(axPlot, x, y, r, Value, strUnit)
 hold(axPlot, 'on');
 if r == 0
 %     text(x-0.1, y+0.15, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',12, 'FontWeight', 'bold');
-    text(axPlot, x-0.7, y+0.35, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',9, 'FontWeight', 'bold');
+    t = text(axPlot, x-0.7, y+0.35, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',9, 'FontWeight', 'bold');
 else
 %     text(x+0.1, y-0.9, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',12, 'FontWeight', 'bold');
-    text(axPlot, x+0.1, y-0.95, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',9, 'FontWeight', 'bold');
+    t = text(axPlot, x+0.1, y-0.95, [Data2Suffix(Value, '0.2'), strUnit], 'FontSize',9, 'FontWeight', 'bold');
 end
+% t.Interactions = editInteraction;
 hold(axPlot, 'off');
 
 
