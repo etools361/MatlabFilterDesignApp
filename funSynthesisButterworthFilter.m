@@ -4,19 +4,19 @@
 % Butterworth 滤波器综合，实现了低通原型参数计算
 %--------------------------------------------------------------------------
 function [km] = funSynthesisButterworthFilter(n, Rs, Rl, fp, fs, Ap, As)
-if isempty(Ap) || Ap>=0
-    Ap = -3;
+if isempty(Ap) || Ap<0
+    Ap = 3;
     fprintf('Ap=%f dB\n', Ap);
 end
 % Butterworth参数计算
 if isempty(n) || n < 2
     % 由 As计算n
-    n_min = 1/log(fs/fp)*log(sqrt((10^(-0.1*As)-1)/(10^(-0.1*Ap)-1)));
+    n_min = 1/log(fs/fp)*log(sqrt((10^(-0.1*As)-1)/(10^(0.1*Ap)-1)));
     n = ceil(n_min);
     fprintf('Order=%d\n', n);
 else
 end
-epsilon = sqrt(10^(-0.1*Ap)-1);
+epsilon = sqrt(10^(0.1*Ap)-1);
 rho     = epsilon/sqrt(epsilon^2+1);
 aE      = (sqrt(rho^(-2)-1))^(1/n);
 if Rs==0 || Rl==0 || Rs==inf || Rl==inf
