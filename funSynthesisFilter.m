@@ -8,11 +8,12 @@ switch fType % 滤波器类型
     case 'Butterworth'
         [km] = funSynthesisButterworthFilter(n, Rs, Rl, fp, fs, Ap, As);
     case 'Chebyshev I'
-        km = [];
-        warning('TBD');
+        [km] = funSynthesisChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
+    case 'Chebyshev II'
+        [km] = funSynthesisInverseChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
     otherwise
-        warning('TBD');
+        error('TBD');
         km = [];
 end
-[strNetlist] = funSynthesisTransAndGenNetlist(fShape, TeeEn, n, Rs, Rl, fp, bw, km);
+[strNetlist] = funSynthesisTransAndGenNetlist(fType, fShape, TeeEn, n, Rs, Rl, fp, bw, km);
 end
