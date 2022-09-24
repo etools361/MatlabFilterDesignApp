@@ -3,7 +3,7 @@
 % Date: 2022-08-21(yyyy-mm-dd)
 % Butterworth 滤波器综合，实现了低通原型参数计算
 %--------------------------------------------------------------------------
-function [km] = funSynthesisButterworthFilter(n, Rs, Rl, fp, fs, Ap, As)
+function [cellValueNetlist, km] = funSynthesisButterworthFilter(n, Rs, Rl, fp, fs, Ap, As)
 if isempty(Ap) || Ap<0
     Ap = 3;
     fprintf('Ap=%f dB\n', Ap);
@@ -48,4 +48,17 @@ for ii=1:n
     am(ii) = 2*sin((2*ii-1)*pi/(2*n));
 end
 km         = am./bm;
+km = fliplr(km);
+cellValueNetlist = [];
+for ii=1:n
+    if mod(ii, 2)
+        Type = 'C';
+        SP   = 'P';
+    else
+        Type = 'L';
+        SP   = 'S';
+    end
+    cellValueNetlist{ii} = {Type, SP, km(ii)};
+end
+
 end
