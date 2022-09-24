@@ -3,7 +3,7 @@
 % Date: 2022-09-02(yyyy-mm-dd)
 % Chebyshev 滤波器综合，实现了低通原型参数的计算
 %--------------------------------------------------------------------------
-function [km] = funSynthesisChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As)
+function [cellValueNetlist, km] = funSynthesisChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As)
     if isempty(Ap) || Ap<0
         Ap = 3;
         fprintf('Ap=%f dB\n', Ap);
@@ -15,9 +15,9 @@ function [km] = funSynthesisChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As)
         n = ceil(n_min);
         fprintf('Order=%d\n', n);
     end
-    [km] = funEvenOrderParameter(n, Rs, Rl, Ap);
+    [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap);
 
-function [km] = funEvenOrderParameter(n, Rs, Rl, Ap)
+function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap)
     if Rs == Rl
         Rl = Rl*(1+1e-6);
     end
@@ -83,6 +83,17 @@ function [km] = funEvenOrderParameter(n, Rs, Rl, Ap)
     end
     % 辗转相除算法
     km = funContinuedFractionExp(n, Z, P);
-
+    km = fliplr(km);
+    cellValueNetlist = [];
+    for ii=1:n
+        if mod(ii, 2)
+            Type = 'C';
+            SP   = 'P';
+        else
+            Type = 'L';
+            SP   = 'S';
+        end
+        cellValueNetlist{ii} = {Type, SP, km(ii)};
+    end
 
 
