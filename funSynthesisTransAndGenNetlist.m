@@ -23,6 +23,7 @@ switch fType % 滤波器类型
         error('TBD');
         km = [];
 end
+isEvenRsRl = ~mod(n, 2) && Rs<Rl;
 mkm2c = length(km2);
 Rvs = 0;
 % 滤波器类型转换和网表生成
@@ -44,17 +45,31 @@ else
 end
 mNode      = 1;
 OneEndPort = 0;
-if Rl==0 || Rl==inf
-    Rvs = 1;
-    OneEndPort = 1;
-    Rvs = xor(Rvs, ~mod(n, 2));
-elseif Rs==0 || Rs==inf
+isSerEn = 0; % 零点串联使能
+if Rl==0 
     Rvs = 0;
     OneEndPort = 1;
-    Rvs = xor(Rvs, ~mod(n, 2));
+    TeeEn = 0;
+elseif Rl==inf
+    Rvs = 1;
+    OneEndPort = 1;
+    TeeEn = 1;
+%     Rvs = xor(Rvs, ~mod(n, 2));
+%     TeeEn = 0;
+elseif Rs==0
+    TeeEn = 1;
+    OneEndPort = 1;
+    Rvs = 0;
+    isSerEn = 0;
+elseif Rs==inf
+    Rvs = 0;
+    OneEndPort = 1;
+%     Rvs = xor(Rvs, ~mod(n, 2));
+    TeeEn = 0;
 else
     Rvs = xor(Rvs, Rs <= Rl);
     Rvs = xor(Rvs, ~TeeEn);
+    Rvs = xor(Rvs, TeeEn && isZeros && Rl ~= Rs);
 end
 Rvs = xor(Rvs, mod(n, 2));
 if Rvs
@@ -95,10 +110,23 @@ for ii=1:n
         end
     end
     if mod(ii+odd, 2)
-        mNode   = [ceil(ii/2), ceil(ii/2)+1];
+        if isZeros && strcmp(fShape, 'BRF')
+            if ii==1
+                mNode   = [1, 2];
+            else
+                mNode   = [ii-1, ii];
+            end
+        else
+            mNode   = [ceil(ii/2), ceil(ii/2)+1];
+        end
         if ~odd
-            mNode1   = [ii, ii+1];
-            mNode2   = [ii+1, ii+2];
+            if isZeros && strcmp(fShape, 'BRF')
+                mNode1   = [ii-1, ii];
+                mNode2   = [ii, ii+1];
+            else
+                mNode1   = [ii, ii+1];
+                mNode2   = [ii+1, ii+2];
+            end
         else
             mNode1   = [ii-1, ii];
             mNode2   = [ii, ii+1];
@@ -108,7 +136,13 @@ for ii=1:n
         mNode1  = mNode;
         mNode2  = mNode;
     end
+    if odd
+        isZeroIndexEn = ~mod(ii, 2) && ~((ii == n) && ~mod(n, 2));
+    else
+        isZeroIndexEn = mod(ii, 2) && ~((ii == 1) && ~mod(n, 2));
+    end
     odd = xor(odd, ~mod(ii, 2));
+    isMidNodeEn = isZeros && isZeroIndexEn;%((~isEvenRsRl && ii ~= n && ~mod(ii, 2)) || (isEvenRsRl && ii ~= 1 && mod(ii, 2)));
     switch fShape
         case 'LPF'
             if ~odd
@@ -130,7 +164,7 @@ for ii=1:n
             mNode2  = mNode;
         case 'BPF'
             a  = bw/fp;
-            if isZeros && ii ~= n && ~mod(ii, 2)
+            if isMidNodeEn
                 % 带0点的臂综合，需要频率转换
                 W          = 1/((km(idx)/a)*(km2(km2cx)/a));
                 Beta1      = 1+W/2+sqrt(W+1/4*W^2);
@@ -151,21 +185,21 @@ for ii=1:n
             end
             strDev0 = 'L';
             strDev  = sprintf('%s%d', strDev0, ii);
-            if TeeEn && isZeros && ii ~= n && ~mod(ii, 2)
+            if TeeEn && isMidNodeEn && isSerEn
                 mNode2_Mid1 = n*3+mNode1(1);
                 strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode1(1), mNode2_Mid1, ValueL);
             else
                 strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode1(1), mNode1(2), ValueL);
             end
             strNetlist = [strNetlist; strTemp];
-            if isZeros && ii ~= n && ~mod(ii, 2)
+            if isMidNodeEn
                 if strDev0 == 'L'
                     strDev0 = 'C';
                 else
                     strDev0 = 'L';
                 end
                 strDev  = sprintf('%s%d', strDev0, ii);
-                if TeeEn
+                if TeeEn && isSerEn
                     strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode2_Mid1, mNode1(2), Value2L);
                 else
                     strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode1(1), mNode1(2), Value2L);
@@ -177,7 +211,7 @@ for ii=1:n
             Value = ValueC;Value2 = Value2C;
         case 'BRF'
             a  = bw/fp;
-            if isZeros && ii ~= n && ~mod(ii, 2)
+            if isMidNodeEn
                 % 带0点的臂综合，需要频率转换
                 W          = 1/(1/(km(idx)*a)*1/(a*km2(km2cx)));
                 Beta1      = 1+W/2+sqrt(W+1/4*W^2);
@@ -197,7 +231,7 @@ for ii=1:n
                 ValueL   = 1/(km(idx)*a)*L0; Value2L = 1/(km2(km2cx)*a)*C0;
             end
             if mNode(2) == 0 % 对地枝
-                if TeeEn && isZeros && ii ~= n && ~mod(ii, 2)
+                if TeeEn && isMidNodeEn
                     mNode1 = [mNode(1), 0];
                     mNode2 = [mNode(1), 0];
                 else
@@ -206,28 +240,28 @@ for ii=1:n
                 end
             else % 桥
                 mNode1 = mNode;
-                if isZeros && ii ~= n && ~mod(ii, 2)
+                if isMidNodeEn
                 else
                     mNode2 = mNode;
                 end
             end
             strDev0 = 'L';
             strDev  = sprintf('%s%d', strDev0, ii);
-            if TeeEn && isZeros && ii ~= n && ~mod(ii, 2)
+            if TeeEn && isMidNodeEn && isSerEn
                 mNode2_Mid1 = n*3+mNode1(1);
                 strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode1(1), mNode2_Mid1, ValueL);
             else
                 strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode1(1), mNode1(2), ValueL);
             end
             strNetlist = [strNetlist; strTemp];
-            if isZeros && ii ~= n && ~mod(ii, 2)
+            if isMidNodeEn
                 if strDev0 == 'L'
                     strDev0 = 'C';
                 else
                     strDev0 = 'L';
                 end
                 strDev  = sprintf('%s%d', strDev0, ii);
-                if TeeEn
+                if TeeEn && isSerEn
                     strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode2_Mid1, mNode1(2), Value2L);
                 else
                     strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode1(1), mNode1(2), Value2L);
@@ -239,21 +273,21 @@ for ii=1:n
             Value = ValueC; Value2 = Value2C;
     end
     strDev  = sprintf('%s%d', strDev0, ii);
-    if TeeEn && isZeros && ii ~= n && ~mod(ii, 2)
+    if TeeEn && isMidNodeEn && isSerEn
         mNode2_Mid2 = n*4+mNode1(1);
         strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode2(1), mNode2_Mid2, Value);
     else
         strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode2(1), mNode2(2), Value);
     end
     strNetlist = [strNetlist; strTemp];
-    if isZeros && ii ~= n && ~mod(ii, 2)
+    if isMidNodeEn
         if strDev0 == 'L'
             strDev0 = 'C';
         else
             strDev0 = 'L';
         end
         strDev  = sprintf('%s%d', strDev0, ii);
-        if TeeEn
+        if TeeEn && isSerEn
             strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode2_Mid2, mNode2(2), Value2);
         else
             strTemp = sprintf('%s %s %d %d %e', strDev, strDev0, mNode2(1), mNode2(2), Value2);
