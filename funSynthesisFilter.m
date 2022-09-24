@@ -6,14 +6,15 @@
 function [strNetlist] = funSynthesisFilter(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, As, bw, fShape)
 switch fType % 滤波器类型
     case 'Butterworth'
-        [km] = funSynthesisButterworthFilter(n, Rs, Rl, fp, fs, Ap, As);
+        [cellValueNetlist, km] = funSynthesisButterworthFilter(n, Rs, Rl, fp, fs, Ap, As);
     case 'Chebyshev I'
-        [km] = funSynthesisChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
+        [cellValueNetlist, km] = funSynthesisChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
     case 'Chebyshev II'
-        [km] = funSynthesisInverseChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
+        [cellValueNetlist, km] = funSynthesisInverseChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
     otherwise
         error('TBD');
         km = [];
 end
-[strNetlist] = funSynthesisTransAndGenNetlist(fType, fShape, TeeEn, n, Rs, Rl, fp, bw, km);
+% [strNetlist] = funSynthesisTransAndGenNetlist(fType, fShape, TeeEn, n, Rs, Rl, fp, bw, km);
+[strNetlist] = funSynthesisTransAndGenNetlist2(fType, fShape, TeeEn, n, Rs, Rl, fp, bw, cellValueNetlist);
 end
