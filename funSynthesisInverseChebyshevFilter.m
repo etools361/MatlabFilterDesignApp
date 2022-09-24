@@ -3,7 +3,7 @@
 % Date: 2022-09-02(yyyy-mm-dd)
 % Chebyshev 滤波器综合，实现了低通原型参数的计算
 %--------------------------------------------------------------------------
-function [km] = funSynthesisInverseChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As)
+function [cellValueNetlist, km] = funSynthesisInverseChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As)
     if isempty(Ap) || Ap<0
         Ap = 3;
         fprintf('Ap=%f dB\n', Ap);
@@ -19,12 +19,12 @@ function [km] = funSynthesisInverseChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As)
         n = ceil(n_min);
         fprintf('Order=%d\n', n);
     end
-    [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp);
+    [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp);
 
-function [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
-    if Rs == Rl
-        Rl = Rl*(1+1e-6);
-    end
+function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
+%     if Rs == Rl
+%         Rl = Rl*(1+1e-6);
+%     end
     if Rs>Rl
         t = sqrt(Rs/Rl);
     else
@@ -39,10 +39,15 @@ function [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
     if ~mod(n, 2)
         K = sqrt((K).^2 + cos(v2).^2)./sin(v2);
     end
-    B         = 1-((t^2-1)/(t^2+1))^2;
+    if Rs == 0 || Rs == inf || Rl == 0 || Rl == inf
+        B = 0;
+    else
+        B         = 1-((t^2-1)/(t^2+1))^2;
+    end
     m         = (1-B)*(epsilon/epsilon2)^2;
-    h         = (sqrt(1+m)+sqrt(m))^(1/n);
     kk        = (1+2/m+2*sqrt(m+1)/m)^(1/2/n);
+    h         = (sqrt(1+m)+sqrt(m))^(1/n);
+%     kk = h;
     Zv        = zeros(1, n);
     Rv        = zeros(1, n);
     Tn        = zeros(1, n);
@@ -62,22 +67,34 @@ function [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
         Zv1 = K./(sqrt((Zv).^2 + cos(v2).^2)./sin(v2));
         Zv1 = -abs(real(Zv1))+1i.*imag(Zv1); % 可能存在问题
         Rv1 = K./(sqrt((Rv).^2 + cos(v2).^2)./sin(v2));
+%         Rv1 = K./Rv;
+        Rv1 = -abs(real(Rv1))+1i.*imag(Rv1); % 可能存在问题
+%         Tn1 = K./Tn;
         Tn1 = K./(sqrt((Tn).^2 + cos(v2).^2)./sin(v2));
+        Tn1 = -abs(real(Tn1))+1i.*imag(Tn1); % 可能存在问题
     end
-    Rv1(abs((Rv1))>10*fp*2*pi) = [];% 排除掉无用点
+    for jj=1:(mod(n+1,2)+1)
+        iRv1 = abs(Rv1); % 找出最大极点并丢掉
+        imax = max(iRv1)==iRv1;
+        Rv1(imax) = [];
+        if sum(imax) == 2
+            break;
+        end
+    end
+%     Rv1(abs((Rv1))>100*fp*2*pi) = [];% 排除掉无用点
 %     Rv1     = imag(Rv1).*1i;
     Es      = funRecursionPoly(n, Zv1);
-    Es      = abs(real(Es)); % 系数为正实数
+    Es      = abs((Es)); % 系数为正实数
     Ps      = funRecursionPoly(n, Rv1);
-    Ps      = abs(real(Ps)); % 系数为正实数
+    Ps      = abs((Ps)); % 系数为正实数
     Fs      = funRecursionPoly(n, Tn1);
-    Fs      = abs(real(Fs)); % 系数为正实数
+    Fs      = abs((Fs)); % 系数为正实数
 %     Fs      = zeros(1, n+1);
 %     Fs(n+1) = 1;
     if Rs == 0 || Rs == inf || Rl == 0 || Rl == inf
         % 一端接载
-        Z  = Fs;
-        P  = Fs;
+        Z  = Es;
+        P  = Es;
         if mod(n, 2)
             Z(2:2:end) = 0;
             P(1:2:end) = 0;
@@ -86,41 +103,34 @@ function [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
             P(2:2:end) = 0;
         end
     else
+        % 两端接载
         Z  = Es-Fs;
         P  = Es+Fs;
-        % 两端接载
-%         Ee  = Es;
-%         Ee(1:2:end)  = 0;
-%         Eo  = Es;
-%         Eo(2:2:end)  = 0;
-%         Fe  = Fs;
-%         Fe(1:2:end)  = 0;
-%         Fo  = Fs;
-%         Fo(2:2:end)  = 0;
-%         if mod(n, 2)
-%             Z   = Eo-Fo;
-%             P   = Ee+Fe;
-%         else
-%             Z   = Eo+Fo;
-%             P   = Ee+Fe;
-%         end
         % 系数归一化
-        [P, Z] = funPolyHighestOrderNorm(P, Z);
     end
+    [P, Z] = funPolyHighestOrderNorm(P, Z);
     % 零点移位法(适用于带零点的滤波器综合)
     % 求零极点
-    mZ   = length(Rv1);
-    nz   = ceil(mZ/2);
-    ZAll = Rv1(1:nz);
+    if abs(real(Rv1))>1e-3
+        for ii=1:length(Rv1)
+            fprintf('Zeros%d=%0.3f+%0.3fi\n', ii, real(Rv1(ii)), imag(Rv1(ii)));
+        end
+    end
+    nz   = ceil(length(Rv1)/2);
+    ZAll = Rv1(1:nz);%1i.*imag(Rv1(imag(Rv1)<0));
     ZRm  = ZAll;
-    nRmZ = nz;
+    nRmZ = length(ZRm);
     Z1P  = P;
     Z1Z  = Z;
-    cn   = 1;
+    cn   = 1;cn2 = 1;
     % 对于偶数阶chebyshev II，需要先综合一个电感，后续和奇数阶相同
+    cellValueNetlist = [];
     if ~mod(n, 2)
+        Z1P  = Z;
+        Z1Z  = P;
         Z1Ps   = funPolyMut_s(Z1P);
         km(cn) = Z1Z(end)./Z1Ps(end);
+        cellValueNetlist{cn2} = {'L', 'S', real(km(cn))}; cn2 = cn2 + 1;
         ZTemp  = Z1Z-Z1Ps.*km(cn);
         Z1Z    = ZTemp;
         cn     = cn + 1;
@@ -151,6 +161,7 @@ function [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
         end
         %---
         km(cn) = C1;cn = cn + 1;
+        cellValueNetlist{cn2} = {'C', 'P', real(C1)};cn2 = cn2 + 1;
         Y3P    = Z1Z;
         Y3Z    = Z1P-C1.*Z1Zs;
         [Y3P, Y3Z] = funPolyHighestOrderNorm(Y3P, Y3Z);
@@ -162,8 +173,14 @@ function [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
         % 求器件值
         C2 = 1/Ki;
         L2 = 1/(C2*Po);
-        km(cn) = L2;cn = cn + 1;
-        km(cn) = C2;cn = cn + 1;
+        if ~mod(n, 2)
+            km(cn) = C2;cn = cn + 1;
+            km(cn) = L2;cn = cn + 1;
+        else
+            km(cn) = L2;cn = cn + 1;
+            km(cn) = C2;cn = cn + 1;
+        end
+        cellValueNetlist{cn2} = {'LCP', 'S', real(L2), real(C2)};cn2 = cn2 + 1;
         % 求去除掉L2和C2后的阻抗
         Z4P = Y3ZPr;
         Z4Z = funPolyDivPole(Y3P-Ki*funPolyMut_s(Y3ZPr), Po);
@@ -171,8 +188,14 @@ function [km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
     end
     C3  = 1/Z4Z(1);
     km(cn) = C3;
+    cellValueNetlist{cn2} = {'C', 'P', real(C3)};cn2 = cn2 + 1;
+    if ~mod(n, 2) && Rl==Rs
+        km  = fliplr(km);
+    end
+    cellValueNetlist = fliplr(cellValueNetlist);
     km  = real(km);
+    
     % 辗转相除算法(仅仅适用于全极点滤波器综合)
-%     km = funContinuedFractionExp(n, Z, P);
+    % km = funContinuedFractionExp(n, Z, P);
 
 
