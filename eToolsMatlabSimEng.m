@@ -23,7 +23,7 @@ SimSW = 3;
 % split netlist
 [iType, Value, CellNode1, CellNode2, cellName] = funSimNetlist2Array(strNetlist);
 % 实际器件替换
-[iType, Value] = funSynthesisFilterActual(iType, Value);
+[iType, Value] = funSynthesisFilterActual(iType, Value, 'E24', 'E24');
 [strNetlist] = funSimArray2Netlist(iType, Value, CellNode1, CellNode2, cellName);
 % strNetlist = {
 % 'V0 V 9 0 1.000000e+00';
