@@ -186,6 +186,9 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
         Z4Z = funPolyDivPole(Y3P-Ki*funPolyMut_s(Y3ZPr), Po);
         [Z1P, Z1Z] = funPolyHighestOrderNorm(Z4P, Z4Z);
     end
+    if nz == 0
+        Z4Z = Z1Z;
+    end
     C3  = 1/Z4Z(1);
     km(cn) = C3;
     cellValueNetlist{cn2} = {'C', 'P', real(C3)};cn2 = cn2 + 1;
