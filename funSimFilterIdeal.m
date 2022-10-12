@@ -40,9 +40,11 @@ switch fShape
 end
 switch fType % 滤波器类型
     case 'Butterworth'
+        epsilon   = sqrt(10^(0.1*Ap)-1);% 通带衰减量
+        aE        = (epsilon)^(-1/n);
         for ii=1:n
             k = ii;
-            Zv  = exp(1i.*((2*k-1).*pi./(2*n) + pi/2));
+            Zv  = aE.*exp(1i.*((2*k-1).*pi./(2*n) + pi/2));
             IdealData = IdealData.*1./(s+Zv);
             P(ii) = Zv;
         end
@@ -107,6 +109,7 @@ switch fType % 滤波器类型
 end
 Z(abs(Z)>100*fp*2*pi) = [];
 P = [P,-real(P)+1i.*imag(P)];
+Z = [Z,-real(Z)+1i.*imag(Z)];
 switch fShape
     case 'LPF'
         P = P;
