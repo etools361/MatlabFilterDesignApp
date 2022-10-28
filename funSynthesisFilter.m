@@ -11,6 +11,8 @@ switch fType % 滤波器类型
         [cellValueNetlist, km] = funSynthesisChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
     case 'Chebyshev II'
         [cellValueNetlist, km] = funSynthesisInverseChebyshevFilter(n, Rs, Rl, fp, fs, Ap, As);
+    case 'Elliptic'
+        [cellValueNetlist, km] = funSynthesisEllipticFilter(n, Rs, Rl, fp, fs, Ap, As);
     otherwise
         error('TBD');
         km = [];
