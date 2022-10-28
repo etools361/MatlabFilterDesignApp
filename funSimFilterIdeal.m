@@ -104,6 +104,33 @@ switch fType % 滤波器类型
                 IdealData = C.*KK2./KK1.*IdealData.*(s + KK1)./(s + KK2);
             end
         end
+    case 'Elliptic'
+        % ref:Lecture Notes On Elliptic Filter Design. Sophocles J.
+        es   = sqrt(10^(0.1*As)-1);% 阻带衰减量
+        ep   = sqrt(10^(0.1*Ap)-1);% 截止频率处衰减量
+        k1   = ep/es;
+        k    = ellipdeg(n, k1);
+        v2   = (n-1)/(n);
+        wa   = cde(v2, k);
+        for ii=1:n
+            k0     = ii;
+            u      = (2*k0-1)/n;
+            KK1    = 1i./(k*cde(u, k));
+            v0     = asne(1i/ep, k1)/n;
+            KK2    = 1i*cde(u+v0, k);
+            C = 1;
+            if ~mod(n, 2)
+                KK1 = sign(imag(KK1)).*(sqrt(((KK1).^2 + wa.^2)./(1-wa.^2)));
+                KK2 = (sqrt(((KK2).^2 + wa.^2)./(1-wa.^2)));
+            end
+            P(ii) = KK2;
+            Z(ii) = KK1;
+            if abs(real(KK1)) > 10*2*pi*fp
+                IdealData = C.*KK2.*IdealData.*1./(s + KK2);
+            else
+                IdealData = C.*KK2./KK1.*IdealData.*(s + KK1)./(s + KK2);
+            end
+        end
     otherwise
         error('TBD');
 end
