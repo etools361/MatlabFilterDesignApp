@@ -45,7 +45,7 @@ switch fType % 滤波器类型
         for ii=1:n
             k = ii;
             Zv  = aE.*exp(1i.*((2*k-1).*pi./(2*n) + pi/2));
-            IdealData = IdealData.*1./(s+Zv);
+            IdealData = IdealData.*aE./(s+Zv);
             P(ii) = Zv;
         end
         Z = inf;
@@ -112,6 +112,11 @@ switch fType % 滤波器类型
         k    = ellipdeg(n, k1);
         v2   = (n-1)/(n);
         wa   = cde(v2, k);
+        wb   = 1./(k*cde((n-1)/n, k));
+        aa   = wb^2;
+        dd   = (-1+wb^2)/(1-wa^2);
+        bb   = dd*wa^2;
+        cc   = 1;
         for ii=1:n
             k0     = ii;
             u      = (2*k0-1)/n;
@@ -120,12 +125,16 @@ switch fType % 滤波器类型
             KK2    = 1i*cde(u+v0, k);
             C = 1;
             if ~mod(n, 2)
-                KK1 = sign(imag(KK1)).*(sqrt(((KK1).^2 + wa.^2)./(1-wa.^2)));
-                KK2 = (sqrt(((KK2).^2 + wa.^2)./(1-wa.^2)));
+%                 KK1 = -sign(imag(KK1)).*(sqrt(((KK1).^2 + wa.^2)./(1-wa.^2)));
+%                 KK2 = (sqrt(((KK2).^2 + wa.^2)./(1-wa.^2)));
+%                 KK1 = (sqrt(((KK1).^2 + wa.^2)./(1-wa.^2)));
+%                 KK2 = sign(imag(KK2)).*(sqrt((wb.^2-1)./(wb.^2-(KK2).^2)));
+                KK1 = sign(imag(KK1)).*sqrt((dd.*KK1.^2+bb)./(cc.*KK1.^2+aa));
+                KK2 = sqrt((dd.*KK2.^2+bb)./(cc.*KK2.^2+aa));
             end
             P(ii) = KK2;
             Z(ii) = KK1;
-            if abs(real(KK1)) > 10*2*pi*fp
+            if abs((KK1)) > 10*2*pi*fp
                 IdealData = C.*KK2.*IdealData.*1./(s + KK2);
             else
                 IdealData = C.*KK2./KK1.*IdealData.*(s + KK1)./(s + KK2);
