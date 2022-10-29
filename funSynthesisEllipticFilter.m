@@ -37,50 +37,46 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
     k    = ellipdeg(n, k1);
     v2   = (n-1)/(n);
     wa   = cde(v2, k);
-    
-    epsilon   = 1/sqrt(10^(0.1*As)-1);% 阻带衰减量
-    epsilon2  = 1/sqrt(10^(0.1*Ap)-1);% 截止频率处衰减量
-%     phi2      = 1/n*asinh(1/epsilon);
-%     K         = cosh(1/n*acosh(1/(epsilon/epsilon2)));
-%     v2        = (n-1)*pi/(2*n);
-%     if ~mod(n, 2)
-%         K = sqrt((K).^2 + cos(v2).^2)./sin(v2);
-%     end
+    wb   = 1./(k*cde((n-1)/n, k));
+    aa   = wb^2;
+    dd   = (-1+wb^2)/(1-wa^2);
+    bb   = dd*wa^2;
+    cc   = 1;
     if Rs == 0 || Rs == inf || Rl == 0 || Rl == inf
         B = 0;
     else
         B         = 1-((t^2-1)/(t^2+1))^2;
     end
-    m         = (1-B)*(epsilon/epsilon2)^2;
-%     kk        = (1+2/m+2*sqrt(m+1)/m)^(1/2/n);
-    h         = (sqrt(1+m)+sqrt(m))^(1/n);
-    kk = h;
     Zv        = zeros(1, n);
     Rv        = zeros(1, n);
     Tn        = zeros(1, n);
-%     K       = (sqrt((K).^2 + cos(v2).^2)./sin(v2));
     for ii=1:n
         k0     = ii;
         u      = (2*k0-1)/n;
         KK1    = 1i./(k*cde(u, k));% zeros
         v0     = asne(1i/ep, k1)/n;
+        v1     = asne(1i*sqrt(1-B)/ep, k1)/n;
         KK2    = 1i*cde(u+v0, k); % poles
-        KK3    = 1i*cde(u, k);
+        KK3    = 1i*cde(u+v1, k); % 特征多项式零点
         
-        Zv(ii)  = KK2;%(-sinh(phi2).*sin(v) + 1i.*cosh(phi2).*cos(v)); % poles
-        Rv(ii)  = KK1;%-1i.*cos(v);% zeros
-        Tn(ii)  = KK3;%0.5*(kk*exp(1i*(pi/2+v))+1/kk*exp(1i*(pi/2-v)));%-1i.*cos(v);
+        Zv(ii)  = KK2;
+        Rv(ii)  = KK1;
+        Tn(ii)  = KK3;
     end
     if mod(n, 2)
         Zv1 = Zv;
         Rv1 = Rv;
         Tn1 = Tn;
     else
-        Zv1 = (sqrt(((Zv).^2 + wa.^2)./(1-wa.^2)));
+        Zv1 = (sqrt((bb+dd.*(Zv).^2)./(cc.*(Zv).^2+aa)));
         Zv1 = -abs(real(Zv1))+1i.*imag(Zv1); 
-        Rv1 = sign(imag(Rv)).*(sqrt(((Rv).^2 + wa.^2)./(1-wa.^2)));
+        Rv1 = sign(imag(Rv)).*(sqrt((bb+dd.*(Rv).^2)./(cc.*(Rv).^2+aa)));
         Rv1 = -abs(real(Rv1))+1i.*imag(Rv1); 
-        Tn1 = sign(imag(Tn)).*(sqrt(((Tn).^2 + wa.^2)./(1-wa.^2)));
+        if B==1
+            Tn1 = sign(imag(Tn)).*(sqrt((bb+dd.*(Tn).^2)./(cc.*(Tn).^2+aa)));
+        else
+            Tn1 = (sqrt((bb+dd.*(Tn).^2)./(cc.*(Tn).^2+aa)));
+        end
         Tn1 = -abs(real(Tn1))+1i.*imag(Tn1); 
     end
 %     Tn1(abs(Tn1)>100*fp*2*pi) = [];
