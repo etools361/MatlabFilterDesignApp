@@ -140,6 +140,19 @@ switch fType % 滤波器类型
                 IdealData = C.*KK2./KK1.*IdealData.*(s + KK1)./(s + KK2);
             end
         end
+    case 'Bessel'
+        ep   = sqrt(10^(0.1*Ap)-1);% 截止频率处衰减量
+        [N2, D2, ND] = fun_bessel_thomson_polynomial(n);
+        [absH] = funCalcuHjw2(ND);
+        % 获取归一化频率
+        [w1] = funGetBesselNormFreq(absH, ep);
+        [P] = roots(fliplr(ND));
+        P = P'./w1;
+        Z = inf;
+        IdealData = IdealData*ND(1)/w1^n;
+        for ii=1:n
+            IdealData = IdealData./(s - P(ii));
+        end
     otherwise
         error('TBD');
 end
