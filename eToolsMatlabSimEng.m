@@ -5,14 +5,14 @@
 %--------------------------------------------------------------------------
 % netlist, PI型，两端接载
 tic;
-fType  = 'Chebyshev I';%'Butterworth';
+fType  = 'Gaussian';%'Bessel';%'Butterworth';
 fShape = 'LPF';
-n     = 7;
+n     = 3;
 Rs    = 1;
-Rl    = 2;
-fp    = 0.159;
+Rl    = 1;
+fp    = 1/2/pi;
 fs    = 2;
-Ap    = 3;
+Ap    = -3.01;
 As    = -Ap-15;
 bw    = [];
 TeeEn = 1;% TeeEn=0:PI, TeeEn=1:Tee
@@ -23,7 +23,7 @@ SimSW = 3;
 % split netlist
 [iType, Value, CellNode1, CellNode2, cellName] = funSimNetlist2Array(strNetlist);
 % 实际器件替换
-[iType, Value] = funSynthesisFilterActual(iType, Value, 'E24', 'E24');
+% [iType, Value] = funSynthesisFilterActual(iType, Value, 'E24', 'E24');
 [strNetlist] = funSimArray2Netlist(iType, Value, CellNode1, CellNode2, cellName);
 % strNetlist = {
 % 'V0 V 9 0 1.000000e+00';
