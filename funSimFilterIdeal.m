@@ -153,6 +153,15 @@ switch fType % 滤波器类型
         for ii=1:n
             IdealData = IdealData./(s - P(ii));
         end
+    case 'Gaussian'
+        ep   = sqrt(10^(0.1*Ap)-1);% 截止频率处衰减量
+        [P, wr, absND] = fun_gaussian_polynomial(n, ep);
+        P = eval(P.*wr);
+        Z         = inf;
+        IdealData = IdealData.*sqrt(factorial(n)).*wr.^(n);
+        for ii=1:n
+            IdealData = IdealData./(s - P(ii));
+        end
     otherwise
         error('TBD');
 end
