@@ -18,8 +18,13 @@ function [cellValueNetlist, km] = funSynthesisBesselFilter(n, Rs, Rl, fp, fs, Ap
     [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap);
 
 function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap)
+    if n>10
+        digits(46)
+    else
+        digits(32)
+    end
     if Rs == Rl
-        Rl = Rl*(1+1e-6);
+        Rl = Rl*(1+1e-12);
     end
     if Rs>Rl
         t = sqrt(Rs/Rl);
@@ -30,15 +35,15 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap)
     epsilon   = sqrt(10^(0.1*Ap)-1);
     % calcu Fs
     [N2, D2, ND] = fun_bessel_thomson_polynomial(n);
-    [absH] = funCalcuHjw2(ND);
+    [absH] = funCalcuHjw2(vpa(ND));
     % 获取归一化频率
-    [w1] = funGetBesselNormFreq(absH, epsilon);
+    [w1] = funGetBesselNormFreq(eval(absH), epsilon);
     if isinf(eta)
         K2    = absH;
         K2(1) = 0;
     else
-        K2    = eta.*absH./absH(1);
-        K2(1) = K2(1)-1;
+        K2    = absH;
+        K2(1) = (1-1/eta).*K2(1);
     end
     m = length(K2);
     KK = zeros(1, m);
@@ -46,8 +51,10 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap)
         KK(ii) = 1i.^(ii-1);
     end
     K2 = K2.*KK;
+%     A = compan(fliplr(K2));
+%     rK2 = eig(A);
     rK2 = roots(fliplr(K2));
-    absrK2 = abs(rK2);
+    absrK2 = abs(eval(rK2));
     [a, b]=sort(absrK2);
     nZeros = 0;
     for ii=1:m
@@ -62,11 +69,16 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap)
     for ii=1:nZeroAdd
         rootsSel(end+1) = 0;
     end
-    Fsflip = poly(rootsSel./w1);
-    rND    = roots(fliplr(ND));
-    NDflip = poly(rND./w1);
-    Fs = fliplr(NDflip);
+    if length(rootsSel)<n
+        rootsSel(end+1) = rK2(abs(real(rK2))<1e-6 & imag(rK2)>0);
+    end
+    Fsflip = fliplr(funRecursionPoly(n, rootsSel));
+%     Fsflip = charpoly(diag(rootsSel));
+
+    Fs = ND;
+    Fs = abs(real(Fs));
     Es = fliplr(Fsflip);
+    Es = abs(real(Es));
     if Rs == 0 || Rs == inf || Rl == 0 || Rl == inf
         % 一端接载
         Z  = Fs;
@@ -99,8 +111,9 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap)
 %         P  = Fs+Es;
     end
     % 辗转相除算法
+    
     km = funContinuedFractionExp(n, Z, P);
-    km = fliplr(km);
+    km = fliplr(km).*w1;
     cellValueNetlist = [];
     for ii=1:n
         if mod(ii, 2)
