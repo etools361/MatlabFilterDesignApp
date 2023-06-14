@@ -162,6 +162,14 @@ switch fType % 滤波器类型
         for ii=1:n
             IdealData = IdealData./(s - P(ii));
         end
+    case 'Legendre'
+        ep   = sqrt(10^(0.1*Ap)-1);% 截止频率处衰减量
+        [P, wr, absND] = fun_legendre_polynomial(n, ep);
+        IdealData = IdealData./(sqrt(absND(end)));
+        Z         = inf;
+        for ii=1:n
+            IdealData = IdealData./(s - P(ii));
+        end
     otherwise
         error('TBD');
 end

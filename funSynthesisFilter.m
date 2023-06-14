@@ -17,6 +17,8 @@ switch fType % 滤波器类型
         [cellValueNetlist, km] = funSynthesisBesselFilter(n, Rs, Rl, fp, fs, Ap, As);
     case 'Gaussian'
         [cellValueNetlist, km] = funSynthesisGaussianFilter(n, Rs, Rl, fp, fs, Ap, As);
+    case 'Legendre'
+        [cellValueNetlist, km] = funSynthesisLegendreFilter(n, Rs, Rl, fp, fs, Ap, As);
     otherwise
         error('TBD');
         km = [];
