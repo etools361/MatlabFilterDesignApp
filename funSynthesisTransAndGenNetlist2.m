@@ -14,6 +14,15 @@ else
     end
 end
 TailNetlist = {{'R', 'P', Rl}};
+if strcmp(fType, 'LinearAmp')
+    if strcmp(cellValueNetlist{1}{1}, 'R')
+        HeadNetlist = [HeadNetlist, cellValueNetlist(1)];
+        cellValueNetlist = cellValueNetlist(2:end);
+    else
+        TailNetlist = [cellValueNetlist(end), TailNetlist];
+        cellValueNetlist = cellValueNetlist(1:end-1);
+    end
+end
 nDev = length(cellValueNetlist);
 % --------------------Rs and Rl---------------------------
 Rvs = 0;

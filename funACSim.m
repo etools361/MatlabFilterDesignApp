@@ -3,8 +3,12 @@
 % Date: 2022-08-18(yyyy-mm-dd)
 % AC仿真
 %--------------------------------------------------------------------------
-function funACSim(axMag, axPhase, f0, f1, N, cellName, MX, MM, MN, MV, Value, node1, node2, IdealFreq, IdealMag, IdealPhase)
-freq = logspace(log10(f0), log10(f1), N);
+function funACSim(axMag, axPhase, f0, f1, N, cellName, MX, MM, MN, MV, Value, node1, node2, IdealFreq, IdealMag, IdealPhase, logscaleEn)
+if logscaleEn
+    freq = logspace(log10(f0), log10(f1), N);
+else
+    freq = linspace(f0, f1, N);
+end
 Vo = zeros(1, N);
 [a, bl]  = ismember('RL',cellName);
 % [a, bs]   = ismember('RS',cellName);
@@ -29,7 +33,13 @@ uWVo = unwrap(AgVo, 179);
 % uWVo = AgVo;
 % toc;
 % figure(2)
-semilogx(axMag, freq, dBVo, '-r', 'LineWidth', 2);
+if logscaleEn
+    semilogx(axMag, freq, dBVo, '-r', 'LineWidth', 2);
+    set(axMag, 'XScale', 'log')
+else
+    plot(axMag, freq, dBVo, '-r', 'LineWidth', 2);
+    set(axMag, 'XScale', 'linear')
+end
 hold(axMag, 'on');
 
 % w = 2.*pi.*freq;
@@ -42,8 +52,11 @@ hold(axMag, 'on');
 % Hs = 0.0002.*((53.58+0.000939.*s+s.^2)./(1.019+2.0126.*s+2.00638.*s.^2+s.^3)).^2;
 % Hs_dB = 10*log10(abs(Hs));
 % semilogx(axMag, freq, Hs_dB, '-m', 'LineWidth', 1);
-
-semilogx(axMag, IdealFreq, IdealMag, '--b', 'LineWidth', 0.1);
+if logscaleEn
+    semilogx(axMag, IdealFreq, IdealMag, '--b', 'LineWidth', 0.1);
+else
+    plot(axMag, IdealFreq, IdealMag, '--b', 'LineWidth', 0.1);
+end
 hold(axMag, 'off');
 grid(axMag, 'on');
 xlabel(axMag, 'Freq/Hz');

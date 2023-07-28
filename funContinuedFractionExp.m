@@ -3,9 +3,9 @@
 % Date: 2022-09-11(yyyy-mm-dd)
 % 连分式展开
 %--------------------------------------------------------------------------
-function km = funContinuedFractionExp(n, Z, P, varargin)
+function [km] = funContinuedFractionExp(n, Z, P, varargin)
 % 辗转相除算法
-km = [];
+km  = [];
 for ii=1:n
     ii_u = n+2-ii;
     if abs(Z(ii_u))<1e-12
