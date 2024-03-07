@@ -52,10 +52,12 @@ hold(axMag, 'on');
 % Hs = 0.0002.*((53.58+0.000939.*s+s.^2)./(1.019+2.0126.*s+2.00638.*s.^2+s.^3)).^2;
 % Hs_dB = 10*log10(abs(Hs));
 % semilogx(axMag, freq, Hs_dB, '-m', 'LineWidth', 1);
-if logscaleEn
-    semilogx(axMag, IdealFreq, IdealMag, '--b', 'LineWidth', 0.1);
-else
-    plot(axMag, IdealFreq, IdealMag, '--b', 'LineWidth', 0.1);
+if ~isempty(IdealFreq)
+    if logscaleEn
+        semilogx(axMag, IdealFreq, IdealMag, '--b', 'LineWidth', 0.1);
+    else
+        plot(axMag, IdealFreq, IdealMag, '--b', 'LineWidth', 0.1);
+    end
 end
 hold(axMag, 'off');
 grid(axMag, 'on');
@@ -71,7 +73,9 @@ ylim(axMag, [-80,0]);
 
 semilogx(axPhase, freq, uWVo, '-r', 'LineWidth', 2);
 hold(axPhase, 'on');
-semilogx(axPhase, IdealFreq, IdealPhase, '--b', 'LineWidth', 0.1);
+if ~isempty(IdealFreq)
+    semilogx(axPhase, IdealFreq, IdealPhase, '--b', 'LineWidth', 0.1);
+end
 hold(axPhase, 'off');
 xlim(axPhase, [min(freq),max(freq)]);
 ylim(axPhase, 'auto');

@@ -10,7 +10,7 @@ for cNode = cur_all_node
     if NodeAll(next_node) == 0
         HistPath(ns)   = next_node;
         HistDevice{ns} = e(cNode);
-        if ne == next_node && HistPath(ins)% 找到终点节点
+        if ne == next_node && length(HistPath)>=ins && HistPath(ins)% 找到终点节点 -------------------------------2023-7-30
             iBranch2GND = iBranch2GND + 1;
             cellBranch2GND{iBranch2GND}{1} = ins;
             PathBranch = ins;

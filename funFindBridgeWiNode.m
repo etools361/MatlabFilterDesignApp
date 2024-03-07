@@ -11,7 +11,9 @@ cellDevice = [];
 iLoop      = 0;
 Looping    = 0;
 % 找出剩余节点，这些节点都是桥，首先找出节点桥
-for ii=Bn
-    [iBn, cellLoop, cellDevice, iLoop, Looping, e] = funDFSFindBridge(h, e, ii, iBn, cellLoop, cellDevice, iLoop, Looping);
+if ~isempty(Bn)
+    for ii=Bn
+        [iBn, cellLoop, cellDevice, iLoop, Looping, e] = funDFSFindBridge(h, e, ii, iBn, cellLoop, cellDevice, iLoop, Looping);
+    end
 end
 end
