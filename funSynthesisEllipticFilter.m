@@ -154,7 +154,14 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
         end
         [iC1] = find(C1Temp>0);
         if ~isempty(iC1)
-            [a, b] = min(C1Temp(iC1));
+            if length(iC1)>2
+                % 找中间最小的,中庸
+                C1Temp2 = C1Temp(iC1);
+                b = ceil(length(iC1)/2);
+                a = C1Temp2(b);
+            else
+                [a, b] = min(C1Temp(iC1));
+            end
             iMin   = iC1(b);
             C1     = a;
         else

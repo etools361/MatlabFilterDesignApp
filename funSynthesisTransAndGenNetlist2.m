@@ -154,6 +154,7 @@ switch fShape
         for ii=1:nDev
             Dev = cellValueNetlistMain{ii};
             a  = bw/fp;
+            a  = 1/a;
             Temp = cellValueNetlistMain{ii}{3};
             switch Dev{1}
                 case 'L'

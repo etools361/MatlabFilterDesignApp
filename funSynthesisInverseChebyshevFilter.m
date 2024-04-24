@@ -64,13 +64,13 @@ function [cellValueNetlist, km] = funEvenOrderParameter(n, Rs, Rl, Ap, As, fp)
         Rv1 = K./Rv;
         Tn1 = K./Tn;
     else
-        Zv1 = K./(sqrt((Zv).^2 + cos(v2).^2)./sin(v2));
+        Zv1 = K*sin(v2)./(sqrt((Zv).^2 + cos(v2).^2));
         Zv1 = -abs(real(Zv1))+1i.*imag(Zv1); % 可能存在问题
-        Rv1 = K./(sqrt((Rv).^2 + cos(v2).^2)./sin(v2));
+        Rv1 = K*sin(v2)./(sqrt((Rv).^2 + cos(v2).^2));
 %         Rv1 = K./Rv;
         Rv1 = -abs(real(Rv1))+1i.*imag(Rv1); % 可能存在问题
 %         Tn1 = K./Tn;
-        Tn1 = K./(sqrt((Tn).^2 + cos(v2).^2)./sin(v2));
+        Tn1 = K*sin(v2)./(sqrt((Tn).^2 + cos(v2).^2));
         Tn1 = -abs(real(Tn1))+1i.*imag(Tn1); % 可能存在问题
     end
     for jj=1:(mod(n+1,2)+1)

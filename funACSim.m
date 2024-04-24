@@ -10,11 +10,18 @@ else
     freq = linspace(f0, f1, N);
 end
 Vo = zeros(1, N);
+Ii = zeros(1, N);
 [a, bl]  = ismember('RL',cellName);
+[a0, b0]  = ismember('RS',cellName);
 % [a, bs]   = ismember('RS',cellName);
 [a2, b2] = ismember('iRL',MX);
+[a3, b3] = ismember('iV0',MX);
+if b3 == 0
+    [a3, b3] = ismember('iI0',MX);
+end
 RL  = Value(bl);
-% RS  = Value(bs);
+RS  = Value(b0);
+ib3 = b3;
 if RL == 0
     ib2 = b2;
 else
@@ -26,7 +33,11 @@ for ii=1:N
     s = 1i*2*pi*f;
     V = (MM.*s + MN)\MV';
     Vo(ii) = V(ib2);
+    Ii(ii) = V(ib3);
 end
+S11r = real(Ii)*2*RS-1;
+S11i = imag(Ii)*2*RS;
+S11 = 10.*log10(S11r.^2+S11i.^2);
 dBVo = 20*log10(abs(Vo));
 AgVo = angle(Vo)*180/pi;
 uWVo = unwrap(AgVo, 179);
@@ -35,12 +46,15 @@ uWVo = unwrap(AgVo, 179);
 % figure(2)
 if logscaleEn
     semilogx(axMag, freq, dBVo, '-r', 'LineWidth', 2);
+    hold(axMag, 'on');
+%     semilogx(axMag, freq, S11, '-b', 'LineWidth', 2);
+%     hold(axMag, 'off');
     set(axMag, 'XScale', 'log')
 else
     plot(axMag, freq, dBVo, '-r', 'LineWidth', 2);
     set(axMag, 'XScale', 'linear')
 end
-hold(axMag, 'on');
+% hold(axMag, 'on');
 
 % w = 2.*pi.*freq;
 % s = 1i.*w;
