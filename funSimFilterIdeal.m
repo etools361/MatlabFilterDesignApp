@@ -3,7 +3,7 @@
 % Date: 2022-08-25(yyyy-mm-dd)
 % 不同类型的滤波器仿真，理想AC特性
 %--------------------------------------------------------------------------
-function [IdealFreq, IdealMag, IdealPhase, P, Z, f_min] = funSimFilterIdeal(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, As, bw, fShape, f0, f1, N)
+function [IdealFreq, IdealMag, IdealPhase, P, Z, f_min] = funSimFilterIdeal(fType, TeeEn, n, Rs, Rl, fp, fs, Ap, Apr, Asr, bw, fShape, f0, f1, N)
 f_min      = [];
 IdealFreq  = logspace(log10(f0), log10(f1), N);
 s          = 1i.*2.*pi.*IdealFreq./(2.*pi.*fp);
@@ -50,10 +50,15 @@ switch fType % 滤波器类型
         end
         Z = inf;
     case 'Chebyshev I'
-        epsilon   = sqrt(10^(0.1*Ap)-1);
+        epsilon   = sqrt(10^(0.1*Apr)-1);
         phi2      = 1/n*asinh(1/epsilon);
         IdealData = IdealData/(epsilon*2^(n-1));
         v2        = (n-1)*pi/(2*n);
+        fpx = cos(1/n*acos(sqrt(10^(Ap/10)-1)/sqrt(10^(Apr/10)-1)));
+        if ~mod(n,2)
+            fpx = sqrt(fpx^2-cos(v2)^2)/sin(v2);
+        end
+        fp  = fp/fpx;
         for ii=1:n
             k  = ii;
             v  = (2*k-1)*pi/(2*n);
@@ -66,12 +71,12 @@ switch fType % 滤波器类型
                 C   = 1./sin(v2);
             end
             P(ii) = KK2;
-            IdealData = C.*IdealData.*1./(s + KK2);
+            IdealData = C.*IdealData.*1./(s.*fpx + KK2);
 %             IdealData = kk.*IdealData.*1./(w+kk.*(1.*cos(v)+1i.*1.*sin(v)));
         end
         Z = inf;
     case 'Chebyshev II' % inverse chebyshev filter
-        epsilon   = 1/sqrt(10^(0.1*As)-1);% 阻带衰减量
+        epsilon   = 1/sqrt(10^(0.1*Asr)-1);% 阻带衰减量
         epsilon2  = 1/sqrt(10^(0.1*Ap)-1);% 截止频率处衰减量
         K         = cosh(1/n*acosh(epsilon2/epsilon));
 %         s         = s/K;
@@ -106,9 +111,10 @@ switch fType % 滤波器类型
         end
     case 'Elliptic'
         % ref:Lecture Notes On Elliptic Filter Design. Sophocles J.
-        es   = sqrt(10^(0.1*As)-1);% 阻带衰减量
+        es   = sqrt(10^(0.1*Asr)-1);% 阻带衰减量
         ep   = sqrt(10^(0.1*Ap)-1);% 截止频率处衰减量
-        k1   = ep/es;
+        epr  = sqrt(10^(0.1*Apr)-1);% 截止频率处衰减量
+        k1   = epr/es;
         k    = ellipdeg(n, k1);
         v2   = (n-1)/(n);
         wa   = cde(v2, k);
@@ -117,11 +123,16 @@ switch fType % 滤波器类型
         dd   = (-1+wb^2)/(1-wa^2);
         bb   = dd*wa^2;
         cc   = 1;
+        fpx = cde(1/n*acde(ep/epr,k1),k);
+        if ~mod(n,2)
+            fpx = sqrt((-bb+dd*(fpx)^2)/(-cc*(fpx)^2+aa));
+        end
+        fp  = fp/fpx;
         for ii=1:n
             k0     = ii;
             u      = (2*k0-1)/n;
             KK1    = 1i./(k*cde(u, k));
-            v0     = asne(1i/ep, k1)/n;
+            v0     = asne(1i/epr, k1)/n;
             KK2    = 1i*cde(u+v0, k);
             C = 1;
             if ~mod(n, 2)
@@ -135,9 +146,9 @@ switch fType % 滤波器类型
             P(ii) = KK2;
             Z(ii) = KK1;
             if abs((KK1)) > 10*2*pi*fp
-                IdealData = C.*KK2.*IdealData.*1./(s + KK2);
+                IdealData = C.*KK2.*IdealData.*1./(s.*fpx + KK2);
             else
-                IdealData = C.*KK2./KK1.*IdealData.*(s + KK1)./(s + KK2);
+                IdealData = C.*KK2./KK1.*IdealData.*(s.*fpx + KK1)./(s.*fpx + KK2);
             end
         end
     case 'Bessel'
